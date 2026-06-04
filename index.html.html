@@ -1,0 +1,659 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+--navy:#0F1E35;--navy2:#1B2E4A;--blue:#2454A4;--sky:#4A90D9;--gold:#C9A84C;
+--bg:#EEF2F7;--card:#FFFFFF;--border:#D4DCE8;
+--text:#0F1E35;--muted:#6B7A99;--sub:#8A9BB8;
+}
+html,body{background:var(--bg);font-family:'Segoe UI',system-ui,sans-serif;color:var(--text);min-height:100vh}
+.app{min-height:100vh;display:flex;flex-direction:column}
+.topbar{background:var(--navy);color:#fff;padding:0 24px;height:52px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.topbar-logo{font-size:15px;font-weight:600;color:#fff}
+.topbar-sub{font-size:12px;color:#7A9BC0;margin-top:1px}
+.topbar-clock{font-size:12px;color:#7A9BC0;letter-spacing:.3px}
+.badge{background:var(--gold);color:#1a1000;font-size:11px;font-weight:600;padding:3px 11px;border-radius:20px}
+.tabs{background:var(--navy2);display:flex;border-bottom:1px solid rgba(255,255,255,.08)}
+.tab{flex:1;height:44px;display:flex;align-items:center;justify-content:center;gap:7px;font-size:13px;font-weight:500;color:#7A9BC0;cursor:pointer;border-bottom:2px solid transparent;transition:all .15s}
+.tab i{font-size:15px}
+.tab.active{color:#fff;border-bottom-color:var(--sky)}
+.content{flex:1;padding:16px 20px;max-width:900px;margin:0 auto;width:100%}
+.section{background:var(--card);border-radius:10px;border:1px solid var(--border);padding:18px 20px;margin-bottom:14px}
+.section-title{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:14px;display:flex;align-items:center;gap:6px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:10px}
+.finput{background:#F4F7FB;border:1px solid var(--border);border-radius:8px;padding:10px 13px;font-size:13px;color:var(--text);width:100%;outline:none;transition:border .15s}
+.finput:focus{border-color:var(--sky)}
+.finput::placeholder{color:var(--sub)}
+.ac-wrap{position:relative}
+.ac-drop{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid var(--border);border-radius:8px;z-index:20;max-height:150px;overflow-y:auto;display:none;box-shadow:0 4px 16px rgba(0,0,0,.1)}
+.ac-item{padding:9px 13px;font-size:13px;cursor:pointer;color:var(--text)}
+.ac-item:hover{background:#F4F7FB}
+.crew-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.crew-half{padding:14px 16px;text-align:center;border-right:1px solid var(--border)}
+.crew-half:last-child{border-right:none}
+.crew-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px}
+.crew-counter{display:flex;align-items:center;justify-content:center}
+.cc-btn{width:38px;height:38px;border-radius:50%;background:#F4F7FB;border:1px solid var(--border);font-size:20px;cursor:pointer;color:var(--muted);display:flex;align-items:center;justify-content:center;transition:all .15s;line-height:1}
+.cc-btn:hover{background:var(--blue);color:#fff;border-color:var(--blue)}
+.cc-btn:active{transform:scale(.94)}
+.cc-val{font-size:32px;font-weight:700;color:var(--navy);width:56px;text-align:center}
+.crew-note{font-size:11px;color:var(--sub);text-align:center;margin-top:10px}
+.evt-calc-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.evt-section,.calc-section{background:var(--card);border-radius:10px;border:1px solid var(--border);padding:18px 20px}
+.evt-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.evt-card{background:#F4F7FB;border:1px solid var(--border);border-radius:9px;padding:14px 6px 10px;text-align:center;cursor:pointer;transition:all .15s}
+.evt-card i.eico{font-size:22px;display:block;margin-bottom:5px;color:var(--sub)}
+.evt-card .elbl{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+.evt-card .ets{font-size:11px;color:var(--sky);display:block;margin-top:4px;font-weight:500;min-height:15px}
+.evt-card:not(.tapped):hover{border-color:var(--sky);background:#EAF2FB}
+.evt-card:not(.tapped):active{transform:scale(.96)}
+.evt-card.tapped{background:var(--blue);border-color:var(--blue)}
+.evt-card.tapped i.eico,.evt-card.tapped .elbl{color:#fff}
+.evt-card.tapped .ets{color:#9DC8F0}
+.eact{display:none;gap:4px;margin-top:7px;justify-content:center}
+.eact-btn{font-size:10px;font-weight:600;padding:3px 9px;border-radius:6px;cursor:pointer;border:1px solid rgba(255,255,255,.4);background:rgba(255,255,255,.18);color:#fff}
+.eact-btn:hover{background:rgba(255,255,255,.3)}
+.eact-undo{background:rgba(220,50,50,.22);border-color:rgba(220,50,50,.5)}
+.eact-undo:hover{background:rgba(220,50,50,.38)}
+.calc-rows{display:flex;flex-direction:column}
+.calc-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #F0F3F8}
+.calc-row:last-child{border-bottom:none;padding-bottom:0}
+.calc-lbl{font-size:13px;color:var(--muted)}
+.calc-val{font-size:14px;font-weight:600;color:var(--text)}
+.calc-val.hpd-val{color:var(--blue);font-size:16px}
+.calc-val.dash{color:#CCD4E0;font-weight:400;font-size:18px}
+.delays-wrap{display:flex;flex-wrap:wrap;gap:7px}
+.chip{background:#F4F7FB;border:1px solid var(--border);border-radius:20px;padding:6px 13px;font-size:12px;font-weight:500;cursor:pointer;color:var(--muted);transition:all .12s}
+.chip.active{background:var(--blue);border-color:var(--blue);color:#fff}
+.notes-ta{width:100%;background:#F4F7FB;border:1px solid var(--border);border-radius:8px;padding:11px 13px;font-size:13px;color:var(--text);resize:none;height:72px;outline:none;font-family:inherit}
+.notes-ta:focus{border-color:var(--sky)}
+.notes-ta::placeholder{color:var(--sub)}
+.btn-save{width:100%;background:var(--blue);color:#fff;border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:9px;transition:all .15s}
+.btn-save:hover{background:#1d4491}
+.btn-reset{width:100%;background:none;color:var(--muted);border:1px solid var(--border);border-radius:10px;padding:11px;font-size:13px;cursor:pointer;font-weight:500}
+.btn-reset:hover{background:#F4F7FB}
+.alert{background:#EAF7EE;border:1px solid #7ED6A0;border-radius:8px;padding:10px 14px;font-size:13px;color:#1A6B38;display:none;margin-bottom:12px;text-align:center;font-weight:500}
+.edit-bar{background:#FFF8E6;border:1px solid #F0C93A;border-radius:8px;padding:8px 14px;font-size:12px;color:#7A5A00;margin-bottom:12px;display:none;text-align:center;font-weight:500}
+.empty{text-align:center;padding:52px 20px;color:var(--sub)}
+.empty i{font-size:40px;display:block;margin-bottom:10px;color:#CCD4E0}
+.obs-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:10px}
+.obs-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+.obs-name{font-size:14px;font-weight:600;color:var(--text)}
+.obs-meta{font-size:12px;color:var(--sub);margin-top:2px}
+.hpd-pill{background:var(--blue);color:#fff;font-size:12px;font-weight:600;padding:3px 11px;border-radius:20px;white-space:nowrap}
+.obs-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px}
+.stat-box{background:#F4F7FB;border-radius:8px;padding:8px;text-align:center}
+.stat-val{font-size:13px;font-weight:600;color:var(--text)}
+.stat-lbl{font-size:10px;color:var(--sub);margin-top:1px}
+.obs-chips{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
+.obs-chip{background:#F4F7FB;border-radius:20px;padding:2px 9px;font-size:11px;color:var(--muted)}
+.obs-note{font-size:12px;color:var(--sub);font-style:italic;margin-bottom:8px}
+.obs-btns{display:flex;gap:7px}
+.obs-edit-btn{background:none;border:1px solid var(--blue);border-radius:7px;padding:5px 11px;font-size:12px;color:var(--blue);cursor:pointer;font-weight:500}
+.obs-del-btn{background:none;border:1px solid var(--border);border-radius:7px;padding:5px 11px;font-size:12px;color:var(--muted);cursor:pointer}
+.kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center}
+.kpi-val{font-size:24px;font-weight:700;color:var(--navy)}
+.kpi-lbl{font-size:11px;color:var(--sub);margin-top:3px}
+.kpi.dk{background:var(--navy2)}
+.kpi.dk .kpi-val{color:var(--gold)}
+.kpi.dk .kpi-lbl{color:#7A9BC0}
+.by-car{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:14px}
+.by-car h3{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px}
+.car-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #F0F3F8;font-size:13px}
+.car-row:last-child{border-bottom:none}
+.car-name{font-weight:600;color:var(--text)}
+.car-stat{color:var(--sub);font-size:12px}
+.exp-section{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin-bottom:14px}
+.exp-section .section-title{margin-bottom:10px}
+.pin-row{display:flex;gap:10px;margin-bottom:12px;align-items:center}
+.pin-input{background:#F4F7FB;border:1px solid var(--border);border-radius:8px;padding:10px 13px;font-size:15px;color:var(--text);width:160px;outline:none;letter-spacing:4px;text-align:center;font-weight:600}
+.pin-input:focus{border-color:var(--sky)}
+.pin-btn{background:var(--navy);color:#fff;border:none;border-radius:8px;padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}
+.pin-btn:active{transform:scale(.98)}
+.pin-note{font-size:12px;color:var(--sub);margin-bottom:14px}
+.pin-error{font-size:12px;color:#C0392B;margin-top:6px;display:none}
+.exp-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.exp-btn{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:13px;text-align:center;cursor:pointer;font-size:13px;font-weight:600;color:var(--blue);display:flex;align-items:center;justify-content:center;gap:7px;transition:all .15s}
+.exp-btn:hover{background:#EAF2FB;border-color:var(--sky)}
+.exp-locked{background:#F4F7FB;border:1px solid var(--border);border-radius:10px;padding:28px 20px;text-align:center;color:var(--sub)}
+.exp-locked i{font-size:32px;display:block;margin-bottom:8px;color:#CCD4E0}
+.exp-locked p{font-size:13px}
+.clear-btn{width:100%;background:none;border:1px solid #E8A5A5;border-radius:10px;padding:12px;font-size:13px;font-weight:600;color:#C0392B;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;margin-top:4px;transition:all .15s}
+.clear-btn:hover{background:#FEF2F2;border-color:#C0392B}
+.modal-bg{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(10,20,40,.55);z-index:300;align-items:center;justify-content:center;padding:20px}
+.modal-bg.open{display:flex}
+.modal{background:#fff;border-radius:14px;padding:24px 22px;width:100%;max-width:310px;box-shadow:0 12px 40px rgba(0,0,0,.18)}
+.modal-evtname{font-size:16px;font-weight:700;color:var(--navy);margin-bottom:2px}
+.modal-sub{font-size:12px;color:var(--sub);margin-bottom:16px}
+.modal-bigtime{font-size:44px;font-weight:700;color:var(--navy);text-align:center;letter-spacing:1.5px;font-variant-numeric:tabular-nums;margin-bottom:18px}
+.offset-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:7px}
+.offset-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:18px}
+.off-btn{background:#F4F7FB;border:1px solid var(--border);border-radius:8px;padding:9px 4px;text-align:center;font-size:13px;font-weight:600;color:var(--text);cursor:pointer;transition:all .12s}
+.off-btn:hover{background:var(--blue);border-color:var(--blue);color:#fff}
+.divider-line{display:flex;align-items:center;gap:10px;margin-bottom:13px;color:var(--sub);font-size:12px}
+.divider-line::before,.divider-line::after{content:'';flex:1;height:1px;background:var(--border)}
+.modal-tinput{width:100%;background:#F4F7FB;border:1px solid var(--border);border-radius:8px;padding:11px 13px;font-size:16px;color:var(--text);text-align:center;margin-bottom:16px;letter-spacing:1px;outline:none;font-weight:600}
+.modal-tinput:focus{border-color:var(--sky)}
+.modal-btn-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.m-cancel{background:none;border:1px solid var(--border);border-radius:9px;padding:12px;font-size:14px;cursor:pointer;color:var(--muted);font-weight:500}
+.m-save{background:var(--navy);border:none;border-radius:9px;padding:12px;font-size:14px;cursor:pointer;color:#fff;font-weight:600}
+.clean-type-pill{display:inline-block;background:#EAF2FB;color:var(--blue);border-radius:20px;padding:2px 9px;font-size:11px;font-weight:600;margin-left:4px}
+@media(max-width:600px){.evt-calc-row{grid-template-columns:1fr}.grid3{grid-template-columns:1fr 1fr}.grid4{grid-template-columns:1fr 1fr}.kpi-grid{grid-template-columns:1fr 1fr}.crew-grid{grid-template-columns:1fr}.crew-half{border-right:none;border-bottom:1px solid var(--border)}.crew-half:last-child{border-bottom:none}.obs-stats{grid-template-columns:1fr 1fr}}
+</style>
+
+<div class="app">
+  <div class="topbar">
+    <div>
+      <div class="topbar-logo"><i class="ti ti-clock" style="margin-right:6px;font-size:13px" aria-hidden="true"></i>Turn Tracker Pro</div>
+      <div class="topbar-sub">Universal — works at any station, any carrier</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px">
+      <div class="topbar-clock" id="clock"></div>
+      <span class="badge" id="saved-badge">0 saved</span>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" id="tab-record" onclick="showTab('record')"><i class="ti ti-player-record" aria-hidden="true"></i>Record</div>
+    <div class="tab" id="tab-log" onclick="showTab('log')"><i class="ti ti-list" aria-hidden="true"></i>Log</div>
+    <div class="tab" id="tab-summary" onclick="showTab('summary')"><i class="ti ti-chart-bar" aria-hidden="true"></i>Summary</div>
+  </div>
+
+  <!-- RECORD -->
+  <div class="content" id="panel-record">
+    <div id="edit-bar" class="edit-bar"><i class="ti ti-edit" style="margin-right:5px" aria-hidden="true"></i>Editing observation — save to update</div>
+    <div id="save-alert" class="alert"><i class="ti ti-check" style="margin-right:5px" aria-hidden="true"></i>Saved successfully</div>
+
+    <div class="section">
+      <div class="section-title"><i class="ti ti-info-circle" aria-hidden="true"></i>Flight info — Obs #<span id="obs-num">1</span></div>
+      <div class="grid3" style="margin-bottom:10px">
+        <select class="finput" id="f-station">
+          <option value="">Station</option>
+          <option value="LAX">LAX</option>
+          <option value="SFO">SFO</option>
+          <option value="JFK">JFK</option>
+          <option value="ORD">ORD</option>
+          <option value="PHL">PHL</option>
+        </select>
+        <select class="finput" id="f-carrier">
+          <option value="" disabled selected>Contract / Carrier</option>
+          <optgroup label="Cabin">
+            <option value="B6">B6 — JetBlue</option>
+            <option value="TN">TN — Air Tahiti Nui</option>
+            <option value="BA">BA — British Airways</option>
+            <option value="UA">UA — United</option>
+            <option value="AA">AA — American</option>
+            <option value="DL">DL — Delta</option>
+          </optgroup>
+          <optgroup label="Ground Handling">
+            <option value="F9">F9 — Frontier</option>
+            <option value="KX">KX — Cayman Airways</option>
+            <option value="PD-PAX">PD — Porter (Pax only)</option>
+            <option value="F8">F8 — Flair Airlines</option>
+            <option value="MX">MX — Breeze Airways</option>
+          </optgroup>
+        </select>
+        <input class="finput" id="f-flight" type="text" placeholder="Flight # (e.g. B6 224)" />
+      </div>
+      <div class="grid3">
+        <div class="ac-wrap">
+          <input class="finput" id="f-aircraft" type="text" placeholder="Search aircraft type..." autocomplete="off" oninput="filterAC()" onfocus="filterAC()" />
+          <div class="ac-drop" id="ac-drop"></div>
+        </div>
+        <input class="finput" id="f-date" type="date" />
+        <select class="finput" id="f-cleantype">
+          <option value="" disabled selected>Clean type</option>
+          <optgroup label="Turn Cleans">
+            <option value="Mint Turn">Mint Turn</option>
+            <option value="Non-Mint Turn">Non-Mint Turn</option>
+          </optgroup>
+          <optgroup label="RON Cleans">
+            <option value="RON">RON</option>
+            <option value="RON - Heavy">RON — Heavy</option>
+          </optgroup>
+          <optgroup label="TN — Air Tahiti Nui">
+            <option value="TN Security Search">TN — Security Search</option>
+            <option value="TN RON">TN — RON</option>
+            <option value="TN Turn">TN — Turn Clean</option>
+          </optgroup>
+          <optgroup label="Other">
+            <option value="Security Search">Security Search</option>
+            <option value="Biohazard Clean">Biohazard Clean</option>
+            <option value="Other">Other</option>
+          </optgroup>
+        </select>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title"><i class="ti ti-users" aria-hidden="true"></i>Crew count</div>
+      <div class="crew-grid">
+        <div class="crew-half">
+          <div class="crew-label" style="color:var(--blue)">Agents</div>
+          <div class="crew-counter">
+            <button class="cc-btn" onclick="adj('agents',-1)">−</button>
+            <div class="cc-val" id="v-agents">0</div>
+            <button class="cc-btn" onclick="adj('agents',1)">+</button>
+          </div>
+        </div>
+        <div class="crew-half">
+          <div class="crew-label" style="color:var(--sky)">Leads</div>
+          <div class="crew-counter">
+            <button class="cc-btn" onclick="adj('leads',-1)">−</button>
+            <div class="cc-val" id="v-leads">0</div>
+            <button class="cc-btn" onclick="adj('leads',1)">+</button>
+          </div>
+        </div>
+        <div class="crew-half">
+          <div class="crew-label" style="color:var(--gold)">Supervisors</div>
+          <div class="crew-counter">
+            <button class="cc-btn" onclick="adj('supers',-1)">−</button>
+            <div class="cc-val" id="v-supers">0</div>
+            <button class="cc-btn" onclick="adj('supers',1)">+</button>
+          </div>
+        </div>
+      </div>
+      <div class="crew-note">HPD uses total crew (agents + leads + supervisors)</div>
+    </div>
+
+    <div class="evt-calc-row">
+      <div class="evt-section">
+        <div class="section-title"><i class="ti ti-hand-click" aria-hidden="true"></i>Tap each event when it happens</div>
+        <div class="evt-grid" id="evt-grid"></div>
+      </div>
+      <div class="calc-section">
+        <div class="section-title"><i class="ti ti-calculator" aria-hidden="true"></i>Live calculations</div>
+        <div class="calc-rows">
+          <div class="calc-row"><span class="calc-lbl">Dead time (arrive→board)</span><span class="calc-val dash" id="c-dead">—</span></div>
+          <div class="calc-row"><span class="calc-lbl">Clean duration</span><span class="calc-val dash" id="c-clean">—</span></div>
+          <div class="calc-row"><span class="calc-lbl">Total crew</span><span class="calc-val dash" id="c-crew">—</span></div>
+          <div class="calc-row"><span class="calc-lbl">Total labor hours</span><span class="calc-val dash" id="c-labor">—</span></div>
+          <div class="calc-row" style="border-bottom:none"><span class="calc-lbl" style="font-weight:600;color:var(--navy)">HPD this turn</span><span class="calc-val hpd-val dash" id="c-hpd">—</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section" style="margin-top:14px">
+      <div class="section-title"><i class="ti ti-clock-exclamation" aria-hidden="true"></i>Delays — tap all that apply</div>
+      <div class="delays-wrap">
+        <div class="chip" onclick="toggleDelay(this)">Catering onboard</div>
+        <div class="chip" onclick="toggleDelay(this)">Slow deplaning</div>
+        <div class="chip" onclick="toggleDelay(this)">Equipment wait</div>
+        <div class="chip" onclick="toggleDelay(this)">Supply shortage</div>
+        <div class="chip" onclick="toggleDelay(this)">Agents idle</div>
+        <div class="chip" onclick="toggleDelay(this)">Rework</div>
+        <div class="chip" onclick="toggleDelay(this)">Gate not ready</div>
+        <div class="chip" onclick="toggleDelay(this)">Overstaffed</div>
+        <div class="chip" onclick="toggleDelay(this)">Jetbridge wait</div>
+        <div class="chip" onclick="toggleDelay(this)">Pax deplaning</div>
+        <div class="chip" onclick="toggleDelay(this)">FA entry delay</div>
+        <div class="chip" onclick="toggleDelay(this)">Cross-util crew</div>
+        <div class="chip" onclick="toggleDelay(this)">Late crew</div>
+        <div class="chip" onclick="toggleDelay(this)">RON setup</div>
+        <div class="chip" onclick="toggleDelay(this)">Biohazard</div>
+        <div class="chip" onclick="toggleDelay(this)">Security hold</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title"><i class="ti ti-note" aria-hidden="true"></i>Additional notes for this turn</div>
+      <textarea class="notes-ta" id="f-notes" placeholder="Additional notes for this turn..."></textarea>
+    </div>
+
+    <button class="btn-save" onclick="saveObs()"><i class="ti ti-device-floppy" aria-hidden="true"></i>Save observation</button>
+    <button class="btn-reset" onclick="resetForm()">Clear form</button>
+  </div>
+
+  <!-- LOG -->
+  <div class="content" id="panel-log" style="display:none">
+    <div id="log-empty" class="empty"><i class="ti ti-clipboard-list" aria-hidden="true"></i><p>No observations yet.<br><span style="font-size:12px">Record turns and they will appear here.</span></p></div>
+    <div id="log-list"></div>
+  </div>
+
+  <!-- SUMMARY -->
+  <div class="content" id="panel-summary" style="display:none">
+    <div id="sum-empty" class="empty"><i class="ti ti-chart-bar" aria-hidden="true"></i><p>No data yet.</p></div>
+    <div id="sum-content" style="display:none">
+      <div class="kpi-grid" id="kpi-grid"></div>
+      <div class="by-car" id="by-car"></div>
+
+      <div class="exp-section">
+        <div class="section-title"><i class="ti ti-lock" aria-hidden="true"></i>Export data — Supervisors &amp; Managers only</div>
+        <p class="pin-note">Enter your supervisor PIN to unlock downloads. Contact your manager if you don't have a PIN.</p>
+        <div class="pin-row">
+          <input class="pin-input" type="password" id="pin-input" placeholder="PIN" maxlength="6" oninput="pinInput()" />
+          <button class="pin-btn" onclick="checkPin()"><i class="ti ti-lock-open" aria-hidden="true"></i> Unlock</button>
+        </div>
+        <div id="pin-error" class="pin-error"><i class="ti ti-x" style="margin-right:4px" aria-hidden="true"></i>Incorrect PIN. Please try again.</div>
+
+        <div id="export-locked" class="exp-locked">
+          <i class="ti ti-lock" aria-hidden="true"></i>
+          <p>Downloads are restricted to supervisors and managers.<br>Enter your PIN above to unlock.</p>
+        </div>
+
+        <div id="export-unlocked" style="display:none">
+          <div style="background:#EAF7EE;border:1px solid #7ED6A0;border-radius:8px;padding:9px 13px;font-size:12px;color:#1A6B38;font-weight:500;margin-bottom:12px;display:flex;align-items:center;gap:6px">
+            <i class="ti ti-check" aria-hidden="true"></i>Access granted — downloads unlocked
+          </div>
+          <div class="exp-grid">
+            <div class="exp-btn" onclick="exportCSV()"><i class="ti ti-file-text" aria-hidden="true"></i>Download CSV</div>
+            <div class="exp-btn" onclick="exportXLS()"><i class="ti ti-table" aria-hidden="true"></i>Download Excel (.xls)</div>
+          </div>
+          <button class="clear-btn" onclick="clearAll()"><i class="ti ti-trash" aria-hidden="true"></i>Clear all observations</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADJUST MODAL -->
+<div class="modal-bg" id="adj-modal">
+  <div class="modal">
+    <div class="modal-evtname" id="adj-evtname">Adjust: Arrive</div>
+    <div class="modal-sub">Current time for this event</div>
+    <div class="modal-bigtime" id="adj-bigtime">—</div>
+    <div class="offset-grid">
+      <div class="off-btn" onclick="offset(-5)">−5 min</div>
+      <div class="off-btn" onclick="offset(-1)">−1 min</div>
+      <div class="off-btn" onclick="offset(1)">+1 min</div>
+    </div>
+    <div class="offset-grid-2">
+      <div class="off-btn" onclick="offset(-10)">−10 min</div>
+      <div class="off-btn" onclick="offset(5)">+5 min</div>
+    </div>
+    <div class="divider-line">or type exact time (HH:MM:SS)</div>
+    <input class="modal-tinput" type="text" id="adj-input" placeholder="HH:MM:SS" maxlength="8" oninput="adjInputChange()" />
+    <div class="modal-btn-row">
+      <button class="m-cancel" onclick="closeAdj()">Cancel</button>
+      <button class="m-save" onclick="saveAdj()">Save time</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── CHANGE THIS PIN before deploying ──────────────────────────────────────
+const SUPERVISOR_PIN = '1234';
+// ─────────────────────────────────────────────────────────────────────────
+
+const SK='unifi_tt_v8';
+const ACS=['A220-300','A319','A320','A320neo','A321','A321neo','A321XLR','A330-200','A330-300','A350-900','A380','B737-700','B737-800','B737-900','B737 MAX 8','B737 MAX 9','B757-200','B767-300','B777-200','B787-8','B787-9','B787-10','E175','E190','CRJ-700','CRJ-900','Q400','ATR-72','Dash 8'];
+const EVTS=[
+  {id:'arrive',icon:'ti-plane-arrival',lbl:'Aircraft arrives'},
+  {id:'board',icon:'ti-door-enter',lbl:'1st agent boards'},
+  {id:'start',icon:'ti-player-play',lbl:'Clean starts'},
+  {id:'complete',icon:'ti-circle-check',lbl:'Clean complete'},
+  {id:'off',icon:'ti-door-exit',lbl:'Last agent off'},
+];
+let obs=[],evts={arrive:null,board:null,start:null,complete:null,off:null};
+let agents=0,leads=0,supers=0,delays=[],editId=null,adjTgt=null,adjWork=null;
+let pinUnlocked=false;
+
+function load(){
+  try{const d=localStorage.getItem(SK);if(d)obs=JSON.parse(d);}catch(e){}
+  buildEvtGrid();updateBadge();updateObsNum();
+}
+function persist(){try{localStorage.setItem(SK,JSON.stringify(obs));}catch(e){}updateBadge();}
+function updateBadge(){document.getElementById('saved-badge').textContent=obs.length+' saved';}
+function updateObsNum(){document.getElementById('obs-num').textContent=obs.length+1;}
+
+function buildEvtGrid(){
+  document.getElementById('evt-grid').innerHTML=EVTS.map(e=>`
+    <div class="evt-card" id="ec-${e.id}" onclick="tapEvt('${e.id}')">
+      <i class="ti ${e.icon} eico" aria-hidden="true"></i>
+      <span class="elbl">${e.lbl}</span>
+      <span class="ets" id="et-${e.id}"></span>
+      <div class="eact" id="ea-${e.id}">
+        <button class="eact-btn" onclick="event.stopPropagation();openAdj('${e.id}')">Adjust</button>
+        <button class="eact-btn eact-undo" onclick="event.stopPropagation();undoEvt('${e.id}')">Undo</button>
+      </div>
+    </div>`).join('');
+}
+
+function tickClock(){
+  const n=new Date();
+  document.getElementById('clock').textContent=n.toLocaleDateString([],{weekday:'short',month:'short',day:'numeric'})+' — '+n.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
+}
+tickClock();setInterval(tickClock,1000);
+
+function showTab(t){
+  ['record','log','summary'].forEach(id=>{
+    document.getElementById('panel-'+id).style.display=id===t?'block':'none';
+    document.getElementById('tab-'+id).classList.toggle('active',id===t);
+  });
+  if(t==='log')renderLog();
+  if(t==='summary')renderSummary();
+}
+
+function adj(f,d){
+  if(f==='agents'){agents=Math.max(0,agents+d);document.getElementById('v-agents').textContent=agents;}
+  else if(f==='leads'){leads=Math.max(0,leads+d);document.getElementById('v-leads').textContent=leads;}
+  else{supers=Math.max(0,supers+d);document.getElementById('v-supers').textContent=supers;}
+  calcLive();
+}
+
+function tapEvt(id){if(evts[id])return;evts[id]=new Date();refreshEvtCard(id);calcLive();}
+function undoEvt(id){
+  evts[id]=null;
+  document.getElementById('ec-'+id).classList.remove('tapped');
+  document.getElementById('et-'+id).textContent='';
+  document.getElementById('ea-'+id).style.display='none';
+  calcLive();
+}
+function refreshEvtCard(id){
+  document.getElementById('ec-'+id).classList.add('tapped');
+  document.getElementById('et-'+id).textContent=fmt(evts[id]);
+  document.getElementById('ea-'+id).style.display='flex';
+}
+function fmt(d){if(!d)return'';return d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});}
+function diffMin(a,b){if(!a||!b)return null;return Math.round((b-a)/60000*10)/10;}
+
+function calcLive(){
+  const crew=agents+leads+supers;
+  const sv=(id,v,isNum)=>{const el=document.getElementById(id);el.textContent=v;el.classList.toggle('dash',!isNum);};
+  sv('c-crew',crew||'—',crew>0);
+  const dead=diffMin(evts.arrive,evts.board);
+  sv('c-dead',dead!==null?dead+' min':'—',dead!==null);
+  const clean=diffMin(evts.start,evts.complete)||diffMin(evts.board,evts.off);
+  sv('c-clean',clean!==null?clean+' min':'—',clean!==null);
+  if(crew>0&&clean!==null){
+    const labor=+(crew*clean/60).toFixed(2);
+    sv('c-labor',labor+' hrs',true);
+    sv('c-hpd',labor.toFixed(2),true);
+    document.getElementById('c-hpd').classList.add('hpd-val');
+  }else{
+    sv('c-labor','—',false);sv('c-hpd','—',false);
+    document.getElementById('c-hpd').classList.add('hpd-val');
+  }
+}
+
+function openAdj(id){
+  adjTgt=id;adjWork=evts[id]?new Date(evts[id]):new Date();
+  const def=EVTS.find(e=>e.id===id);
+  document.getElementById('adj-evtname').textContent='Adjust: '+(def?def.lbl:id);
+  syncAdj();document.getElementById('adj-modal').classList.add('open');
+}
+function closeAdj(){document.getElementById('adj-modal').classList.remove('open');adjTgt=null;adjWork=null;}
+function syncAdj(){if(!adjWork)return;document.getElementById('adj-bigtime').textContent=fmt(adjWork);document.getElementById('adj-input').value=fmt(adjWork);}
+function offset(m){if(!adjWork)return;adjWork=new Date(adjWork.getTime()+m*60000);syncAdj();}
+function adjInputChange(){
+  const v=document.getElementById('adj-input').value,p=v.split(':');
+  if(p.length>=2){const h=parseInt(p[0]),m=parseInt(p[1]),s=p[2]?parseInt(p[2]):0;if(!isNaN(h)&&!isNaN(m)){const d=new Date(adjWork||new Date());d.setHours(h,m,isNaN(s)?0:s,0);adjWork=d;document.getElementById('adj-bigtime').textContent=fmt(d);}}
+}
+function saveAdj(){if(!adjTgt||!adjWork)return;evts[adjTgt]=new Date(adjWork);refreshEvtCard(adjTgt);calcLive();closeAdj();}
+
+function toggleDelay(el){el.classList.toggle('active');delays=Array.from(document.querySelectorAll('.chip.active')).map(c=>c.textContent);}
+
+function filterAC(){
+  const q=document.getElementById('f-aircraft').value.toLowerCase();
+  const drop=document.getElementById('ac-drop');
+  const f=ACS.filter(a=>a.toLowerCase().includes(q));
+  if(!f.length||!q){drop.style.display='none';return;}
+  drop.innerHTML=f.map(a=>`<div class="ac-item" onclick="selAC('${a}')">${a}</div>`).join('');
+  drop.style.display='block';
+}
+function selAC(v){document.getElementById('f-aircraft').value=v;document.getElementById('ac-drop').style.display='none';}
+document.addEventListener('click',e=>{if(!e.target.closest('.ac-wrap'))document.getElementById('ac-drop').style.display='none';});
+
+// PIN
+function pinInput(){document.getElementById('pin-error').style.display='none';}
+function checkPin(){
+  const val=document.getElementById('pin-input').value;
+  if(val===SUPERVISOR_PIN){
+    pinUnlocked=true;
+    document.getElementById('export-locked').style.display='none';
+    document.getElementById('export-unlocked').style.display='block';
+    document.getElementById('pin-error').style.display='none';
+    document.getElementById('pin-input').value='';
+  }else{
+    document.getElementById('pin-error').style.display='block';
+    document.getElementById('pin-input').value='';
+  }
+}
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&document.activeElement===document.getElementById('pin-input'))checkPin();});
+
+function saveObs(){
+  const station=document.getElementById('f-station').value;
+  const carrier=document.getElementById('f-carrier').value;
+  const flight=document.getElementById('f-flight').value.trim();
+  const date=document.getElementById('f-date').value;
+  const aircraft=document.getElementById('f-aircraft').value.trim();
+  const cleanType=document.getElementById('f-cleantype').value;
+  const notes=document.getElementById('f-notes').value.trim();
+  const crew=agents+leads+supers;
+  const dead=diffMin(evts.arrive,evts.board);
+  const clean=diffMin(evts.start,evts.complete)||diffMin(evts.board,evts.off);
+  const labor=crew>0&&clean!==null?+(crew*clean/60).toFixed(2):null;
+  const rec={id:editId||Date.now(),station,carrier,flight,date,aircraft,cleanType,agents,leads,supers,crew,
+    evts:Object.fromEntries(Object.entries(evts).map(([k,v])=>[k,v?v.toISOString():null])),
+    deadMin:dead,cleanMin:clean,laborHrs:labor,hpd:labor,delays:[...delays],notes,savedAt:new Date().toISOString()};
+  if(editId){const i=obs.findIndex(o=>o.id===editId);if(i>-1)obs[i]=rec;editId=null;document.getElementById('edit-bar').style.display='none';}
+  else obs.unshift(rec);
+  persist();
+  const a=document.getElementById('save-alert');a.style.display='block';setTimeout(()=>a.style.display='none',2200);
+  resetForm();updateObsNum();
+}
+
+function resetForm(){
+  ['f-station','f-carrier','f-flight','f-aircraft','f-cleantype'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('f-date').value=new Date().toISOString().slice(0,10);
+  document.getElementById('f-notes').value='';
+  agents=0;leads=0;supers=0;
+  ['v-agents','v-leads','v-supers'].forEach(id=>document.getElementById(id).textContent='0');
+  evts={arrive:null,board:null,start:null,complete:null,off:null};
+  EVTS.forEach(e=>{const c=document.getElementById('ec-'+e.id);if(c){c.classList.remove('tapped');document.getElementById('et-'+e.id).textContent='';document.getElementById('ea-'+e.id).style.display='none';}});
+  document.querySelectorAll('.chip.active').forEach(c=>c.classList.remove('active'));
+  delays=[];
+  ['c-dead','c-clean','c-crew','c-labor','c-hpd'].forEach(id=>{const el=document.getElementById(id);el.textContent='—';el.classList.add('dash');});
+  editId=null;document.getElementById('edit-bar').style.display='none';
+}
+
+function editObs(id){
+  const o=obs.find(x=>x.id===id);if(!o)return;
+  showTab('record');
+  document.getElementById('f-station').value=o.station||'';
+  document.getElementById('f-carrier').value=o.carrier||'';
+  document.getElementById('f-flight').value=o.flight||'';
+  document.getElementById('f-date').value=o.date||'';
+  document.getElementById('f-aircraft').value=o.aircraft||'';
+  document.getElementById('f-cleantype').value=o.cleanType||'';
+  document.getElementById('f-notes').value=o.notes||'';
+  agents=o.agents||0;leads=o.leads||0;supers=o.supers||0;
+  document.getElementById('v-agents').textContent=agents;
+  document.getElementById('v-leads').textContent=leads;
+  document.getElementById('v-supers').textContent=supers;
+  evts={arrive:null,board:null,start:null,complete:null,off:null};
+  if(o.evts)Object.keys(o.evts).forEach(k=>{if(o.evts[k]&&k in evts){evts[k]=new Date(o.evts[k]);refreshEvtCard(k);}});
+  document.querySelectorAll('.chip').forEach(c=>c.classList.toggle('active',(o.delays||[]).includes(c.textContent)));
+  delays=[...(o.delays||[])];editId=id;
+  document.getElementById('edit-bar').style.display='block';
+  calcLive();window.scrollTo(0,0);
+}
+
+function deleteObs(id){if(!confirm('Delete this observation?'))return;obs=obs.filter(o=>o.id!==id);persist();renderLog();}
+
+function clearAll(){
+  if(!confirm('Clear ALL '+obs.length+' observations? This cannot be undone.'))return;
+  obs=[];persist();renderSummary();renderLog();updateObsNum();
+}
+
+function renderLog(){
+  const list=document.getElementById('log-list'),empty=document.getElementById('log-empty');
+  if(!obs.length){empty.style.display='block';list.innerHTML='';return;}
+  empty.style.display='none';
+  list.innerHTML=obs.map(o=>{
+    const title=[o.carrier,o.flight].filter(Boolean).join(' ')||'Unnamed turn';
+    const sub=[o.station,o.aircraft,o.date].filter(Boolean).join(' · ');
+    const ctPill=o.cleanType?`<span class="clean-type-pill">${o.cleanType}</span>`:'';
+    const dchips=(o.delays||[]).map(d=>`<span class="obs-chip">${d}</span>`).join('');
+    return`<div class="obs-card">
+      <div class="obs-head"><div><div class="obs-name">${title}${ctPill}</div><div class="obs-meta">${sub}</div></div><span class="hpd-pill">${o.hpd!=null?o.hpd.toFixed(2)+' HPD':'No HPD'}</span></div>
+      <div class="obs-stats">
+        <div class="stat-box"><div class="stat-val">${o.agents||0} / ${o.leads||0} / ${o.supers||0}</div><div class="stat-lbl">Agents / Leads / Supers</div></div>
+        <div class="stat-box"><div class="stat-val">${o.crew||'—'}</div><div class="stat-lbl">Total crew</div></div>
+        <div class="stat-box"><div class="stat-val">${o.deadMin!=null?o.deadMin+' min':'—'}</div><div class="stat-lbl">Dead time</div></div>
+        <div class="stat-box"><div class="stat-val">${o.cleanMin!=null?o.cleanMin+' min':'—'}</div><div class="stat-lbl">Clean time</div></div>
+      </div>
+      ${dchips?`<div class="obs-chips">${dchips}</div>`:''}
+      ${o.notes?`<div class="obs-note">${o.notes}</div>`:''}
+      <div class="obs-btns">
+        <button class="obs-edit-btn" onclick="editObs(${o.id})"><i class="ti ti-edit" aria-hidden="true"></i> Edit</button>
+        <button class="obs-del-btn" onclick="deleteObs(${o.id})"><i class="ti ti-trash" aria-hidden="true"></i> Delete</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderSummary(){
+  const empty=document.getElementById('sum-empty'),content=document.getElementById('sum-content');
+  if(!obs.length){empty.style.display='block';content.style.display='none';return;}
+  empty.style.display='none';content.style.display='block';
+  const wH=obs.filter(o=>o.hpd!=null),wC=obs.filter(o=>o.cleanMin!=null),wD=obs.filter(o=>o.deadMin!=null),wCr=obs.filter(o=>o.crew>0);
+  const avgHPD=wH.length?+(wH.reduce((a,o)=>a+o.hpd,0)/wH.length).toFixed(2):null;
+  const avgC=wC.length?+(wC.reduce((a,o)=>a+o.cleanMin,0)/wC.length).toFixed(1):null;
+  const avgD=wD.length?+(wD.reduce((a,o)=>a+o.deadMin,0)/wD.length).toFixed(1):null;
+  const avgCr=wCr.length?+(wCr.reduce((a,o)=>a+o.crew,0)/wCr.length).toFixed(1):null;
+  document.getElementById('kpi-grid').innerHTML=`
+    <div class="kpi dk"><div class="kpi-val">${obs.length}</div><div class="kpi-lbl">Turns observed</div></div>
+    <div class="kpi dk"><div class="kpi-val">${avgHPD!=null?avgHPD:'—'}</div><div class="kpi-lbl">Avg HPD observed</div></div>
+    <div class="kpi"><div class="kpi-val">${avgC!=null?avgC+' min':'—'}</div><div class="kpi-lbl">Avg clean time</div></div>
+    <div class="kpi"><div class="kpi-val">${avgD!=null?avgD+' min':'—'}</div><div class="kpi-lbl">Avg dead time</div></div>
+    <div class="kpi"><div class="kpi-val">${obs.filter(o=>o.delays&&o.delays.length).length}</div><div class="kpi-lbl">Turns with delays</div></div>
+    <div class="kpi"><div class="kpi-val">${avgCr!=null?avgCr:'—'}</div><div class="kpi-lbl">Avg crew/turn</div></div>`;
+  const cars={};
+  obs.forEach(o=>{const c=o.carrier||'Unknown';if(!cars[c])cars[c]={n:0,hpds:[],cleans:[]};cars[c].n++;if(o.hpd!=null)cars[c].hpds.push(o.hpd);if(o.cleanMin!=null)cars[c].cleans.push(o.cleanMin);});
+  document.getElementById('by-car').innerHTML=`<h3>By carrier</h3>`+Object.entries(cars).map(([c,d])=>{
+    const ah=d.hpds.length?+(d.hpds.reduce((a,v)=>a+v,0)/d.hpds.length).toFixed(2):null;
+    const ac=d.cleans.length?+(d.cleans.reduce((a,v)=>a+v,0)/d.cleans.length).toFixed(1):null;
+    return`<div class="car-row"><span class="car-name">${c}</span><span class="car-stat">${d.n} turns · ${ah!=null?ah+' HPD':'—'} · ${ac!=null?ac+' min avg':'—'}</span></div>`;
+  }).join('');
+}
+
+function getRows(){
+  const H=['ID','Station','Carrier','Flight','Date','Aircraft','Clean Type','Agents','Leads','Supervisors','Total Crew','Dead Time (min)','Clean Time (min)','Labor Hours','HPD','Delays','Notes','Saved At'];
+  const R=obs.map(o=>[o.id,o.station||'',o.carrier||'',o.flight||'',o.date||'',o.aircraft||'',o.cleanType||'',o.agents||0,o.leads||0,o.supers||0,o.crew||0,o.deadMin!=null?o.deadMin:'',o.cleanMin!=null?o.cleanMin:'',o.laborHrs!=null?o.laborHrs:'',o.hpd!=null?o.hpd:'',(o.delays||[]).join(';'),o.notes||'',o.savedAt||'']);
+  return{H,R};
+}
+function exportCSV(){
+  if(!obs.length)return;
+  const{H,R}=getRows();
+  const csv=[H.join(','),...R.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(','))].join('\n');
+  dl(new Blob([csv],{type:'text/csv'}),'Unifi_TurnTracker_'+dt()+'.csv');
+}
+function exportXLS(){
+  if(!obs.length)return;
+  const{H,R}=getRows();
+  let tbl='<table><tr>'+H.map(h=>`<th>${h}</th>`).join('')+'</tr>';
+  R.forEach(r=>{tbl+='<tr>'+r.map(v=>`<td>${v}</td>`).join('')+'</tr>';});
+  tbl+='</table>';
+  const xls=`<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="utf-8"/></head><body>${tbl}</body></html>`;
+  dl(new Blob([xls],{type:'application/vnd.ms-excel'}),'Unifi_TurnTracker_'+dt()+'.xls');
+}
+function dl(blob,name){const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);}
+function dt(){return new Date().toISOString().slice(0,10);}
+
+load();
+document.getElementById('f-date').value=new Date().toISOString().slice(0,10);
+</script>
